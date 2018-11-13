@@ -52,6 +52,7 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
         bluetoothGattCharacteristicUUIDString.replace(4, 8, "0003");
         this.bluetoothGattCharacteristicNoResponseUUID = UUID.fromString(bluetoothGattCharacteristicUUIDString.toString());
         this.bluetoothDevice = bluetoothDevice;
+        writePendingLimit = 1;
 
         detourSources = new ArrayList<FDDetourSource>();
         bluetoothGattCallback = new BluetoothGattCallback() {

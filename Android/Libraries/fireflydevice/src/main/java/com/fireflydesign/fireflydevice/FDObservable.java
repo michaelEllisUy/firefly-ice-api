@@ -40,8 +40,8 @@ public class FDObservable {
     Map<Class, Object> proxyByObserverInterface;
 
     public FDObservable() {
-        observers = new ArrayList<Object>();
-        proxyByObserverInterface = new HashMap<Class, Object>();
+        observers = new ArrayList<>();
+        proxyByObserverInterface = new HashMap<>();
     }
 
     public void addObserver(Object observer) {

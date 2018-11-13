@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,12 +47,15 @@ import com.fireflydesign.fireflydevice.FDPullTask;
 import com.fireflydesign.fireflydevice.FDVMADecoder;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MainActivity extends Activity implements FDFireflyIceManager.Delegate, FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate {
+public class MainActivity extends Activity implements FDFireflyIceManager.Delegate,
+        FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate,
+        FDHelloTask.Delegate {
 
     FDFireflyIceManager fireflyIceManager;
     Map<String, Map<String, Object>> discovered;
@@ -65,11 +69,11 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
         discovered = new HashMap<>();
         listViewItems = new ArrayList<>();
-        ListView listView = (ListView)findViewById(R.id.listView);
+        ListView listView = findViewById(R.id.listView);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_single_choice, listViewItems);
         listView.setAdapter(adapter);
 
-        UUID serviceUUID = UUID.fromString("310a0001-1b95-5091-b0bd-b7a681846399"); // Firefly Ice
+        UUID serviceUUID = UUID.fromString("577FB8B4-553E-4807-9779-8647481D49B3"); // Firefly Ice
         BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter != null) {
@@ -89,7 +93,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
         FDFireflyIce fireflyIce = new FDFireflyIce(this);
         fireflyIce.observable.addObserver(this);
-        FDFireflyIceChannelBLE channel = new FDFireflyIceChannelBLE(this, "310a0001-1b95-5091-b0bd-b7a681846399", bluetoothDevice);
+        FDFireflyIceChannelBLE channel = new FDFireflyIceChannelBLE(this, "577FB8B4-553E-4807-9779-8647481D49B3", bluetoothDevice);
         fireflyIce.addChannel(channel, "BLE");
 
         map = new HashMap<>();
@@ -98,7 +102,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
         discovered.put(bluetoothDevice.getAddress(), map);
 
         // add to end of list
-        ListView listView = (ListView)findViewById(R.id.listView);
+        ListView listView = findViewById(R.id.listView);
         ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
         adapter.add(bluetoothDevice.getAddress());
     }
@@ -142,11 +146,12 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
         FDFireflyDeviceLogger.debug(null, "FD020003", "illuminating firefly device");
         final FDFireflyIceChannel channel = fireflyIce.channels.get("BLE");
-        FDFireflyIceSimpleTask task = new FDFireflyIceSimpleTask(fireflyIce, channel, new FDFireflyIceSimpleTask.Delegate() {
-            public void run() {
-                fireflyIce.coder.sendIdentify(channel, 5.0);
-            }
-        });
+        FDHelloTask task = new FDHelloTask(fireflyIce, channel, this);
+//        FDFireflyIceSimpleTask task = new FDFireflyIceSimpleTask(fireflyIce, channel, new FDFireflyIceSimpleTask.Delegate() {
+//            public void run() {
+//                fireflyIce.coder.sendIdentify(channel, 5.0);
+//            }
+//        });
         fireflyIce.executor.execute(task);
     }
 
@@ -410,4 +415,18 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
     }
 
+    @Override
+    public double helloTaskDate() {
+        return new Date().getTime();
+    }
+
+    @Override
+    public void helloTaskSuccess(FDHelloTask helloTask) {
+        Log.i("tag", "Success");
+    }
+
+    @Override
+    public void helloTaskError(FDHelloTask helloTask, FDError error) {
+        Log.i("tag", "Error");
+    }
 }
