@@ -22,6 +22,7 @@ public class FDFireflyIceManager {
     BluetoothAdapter bluetoothAdapter;
     UUID serviceUUID;
     Delegate delegate;
+    Boolean discovery;
 
     ScanCallback scanCallback;
 
@@ -56,6 +57,7 @@ public class FDFireflyIceManager {
     }
 
     public void setDiscovery(boolean discover) {
+        discovery = discover;
         BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         if (discover) {
             bluetoothLeScanner.startScan(scanCallback);
@@ -80,5 +82,13 @@ public class FDFireflyIceManager {
 
     void discovered(ScanResult result) {
         delegate.discovered(this, result);
+    }
+
+    public Boolean getDiscovery() {
+        return discovery;
+    }
+
+    public UUID getServiceUUID() {
+        return serviceUUID;
     }
 }

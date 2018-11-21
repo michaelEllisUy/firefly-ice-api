@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.Manifest;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,12 +54,14 @@ import com.fireflydesign.fireflydevice.FDPullTask;
 import com.fireflydesign.fireflydevice.FDVMADecoder;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MainActivity extends Activity implements FDFireflyIceManager.Delegate, FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate {
+public class MainActivity extends Activity implements FDFireflyIceManager.Delegate,
+        FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate, FDHelloTask.Delegate {
 
     String baseUUID;
     FDFireflyIceManager fireflyIceManager;
@@ -350,7 +353,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
     public void fireflyIceStatus(FDFireflyIce fireflyIce, FDFireflyIceChannel channel, FDFireflyIceChannel.Status status) {
         if (status == FDFireflyIceChannel.Status.Open) {
             FDFireflyDeviceLogger.info(null, "FD020012", "executing hello task");
-            fireflyIce.executor.execute(new FDHelloTask(fireflyIce, channel, null));
+            fireflyIce.executor.execute(new FDHelloTask(fireflyIce, channel, this));
         }
     }
 
@@ -361,7 +364,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
     @Override
     public void fireflyIcePing(FDFireflyIce fireflyIce, FDFireflyIceChannel channel, byte[] data) {
-
+        Log.i("TAG", "Got here");
     }
 
     @Override
@@ -519,4 +522,19 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
     }
 
+    @Override
+    public double helloTaskDate() {
+        return new Date().getTime();
+    }
+
+    @Override
+    public void helloTaskSuccess(FDHelloTask helloTask) {
+        Log.i("TAG", "hello");
+        Toast.makeText(this, "Hello Success", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void helloTaskError(FDHelloTask helloTask, FDError error) {
+        Log.i("TAG", "hello");
+    }
 }

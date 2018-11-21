@@ -37,6 +37,7 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
     List<FDDetourSource> detourSources;
     int writePending;
     int writePendingLimit;
+    Integer rssi;
     BluetoothGattCallback bluetoothGattCallback;
     BluetoothGatt bluetoothGatt;
     BluetoothGattCharacteristic bluetoothGattCharacteristic;
@@ -288,4 +289,11 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
 		}
 	}
 
+    public void setRssi(int rssi) {
+        this.rssi = rssi;
+    }
+
+    public Integer getRssi() {
+        return rssi;
+    }
 }
