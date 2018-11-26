@@ -43,10 +43,9 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
     BluetoothGattCharacteristic bluetoothGattCharacteristic;
     BluetoothGattCharacteristic bluetoothGattCharacteristicNoResponse;
 
-    public FDFireflyIceChannelBLE(final Activity activity, final String bluetoothGattServiceUUIDString, final BluetoothDevice bluetoothDevice) {
+    public FDFireflyIceChannelBLE(final String bluetoothGattServiceUUIDString, final BluetoothDevice bluetoothDevice) {
         this.detour = new FDDetour();
 
-        this.activity = activity;
         StringBuffer bluetoothGattCharacteristicUUIDString = new StringBuffer(bluetoothGattServiceUUIDString);
         bluetoothGattCharacteristicUUIDString.replace(4, 8, "0002");
         this.bluetoothGattCharacteristicUUID = UUID.fromString(bluetoothGattCharacteristicUUIDString.toString());
@@ -60,84 +59,64 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
             @Override
             public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
                 final byte[] data = characteristic.getValue();
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        characteristicChanged(gatt, characteristic, data);
-                    }
-                });
+                characteristicChanged(gatt, characteristic, data);
             }
 
             @Override
             public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, final int status) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        writeComplete(gatt, status);
-                    }
-                });
+                writeComplete(gatt, status);
             }
 
             @Override
             public void onDescriptorWrite(final BluetoothGatt gatt, final BluetoothGattDescriptor descriptor, final int status) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        writeComplete(gatt, status);
-                    }
-                });
+                writeComplete(gatt, status);
             }
 
             @Override
             public void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        connectionStateChange(gatt, status, newState);
-                    }
-                });
+                connectionStateChange(gatt, status, newState);
             }
 
             @Override
             public void onServicesDiscovered(final BluetoothGatt gatt, final int status) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        servicesDiscovered(gatt, status);
-                    }
-                });
+                servicesDiscovered(gatt, status);
             }
         };
     }
 
-	public String getName() {
-		return "BLE";
-	}
+    public String getName() {
+        return "BLE";
+    }
 
-	public FDFireflyDeviceLog getLog() {
-		return log;
-	}
+    public FDFireflyDeviceLog getLog() {
+        return log;
+    }
 
-	public void setLog(FDFireflyDeviceLog log) {
-		this.log = log;
-	}
+    public void setLog(FDFireflyDeviceLog log) {
+        this.log = log;
+    }
 
-	public void setDelegate(FDFireflyIceChannel.Delegate delegate) {
-		this.delegate = delegate;
-	}
+    public void setDelegate(FDFireflyIceChannel.Delegate delegate) {
+        this.delegate = delegate;
+    }
 
-	public FDFireflyIceChannel.Delegate getDelegate() {
-		return delegate;
-	}
+    public FDFireflyIceChannel.Delegate getDelegate() {
+        return delegate;
+    }
 
-	public FDFireflyIceChannel.Status getStatus() {
-		return status;
-	}
+    public FDFireflyIceChannel.Status getStatus() {
+        return status;
+    }
 
-	public void open() {
+    public void open() {
         FDFireflyDeviceLogger.debug(log, "FD010901", "opening firefly");
-		status = FDFireflyIceChannel.Status.Opening;
-		if (delegate != null) {
-			delegate.fireflyIceChannelStatus(this, status);
-		}
+        status = FDFireflyIceChannel.Status.Opening;
+        if (delegate != null) {
+            delegate.fireflyIceChannelStatus(this, status);
+        }
 
         bluetoothGatt = bluetoothDevice.connectGatt(activity, false, bluetoothGattCallback);
-	}
+    }
 
     void shutdown() {
         FDFireflyDeviceLogger.debug(log, "FD010902", "closed firefly");
@@ -163,10 +142,10 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
     public void close() {
         shutdown();
 
-		if (delegate != null) {
-			delegate.fireflyIceChannelStatus(this, status);
-		}
-	}
+        if (delegate != null) {
+            delegate.fireflyIceChannelStatus(this, status);
+        }
+    }
 
     void servicesDiscovered(final BluetoothGatt gatt, final int status) {
         FDFireflyDeviceLogger.debug(log, "FD010903", "found firefly service");
@@ -187,8 +166,7 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
                     descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                     boolean canWrite = bluetoothGatt.writeDescriptor(descriptor);
                     writePending = writePendingLimit;
-                } else
-                if (uuid.equals(bluetoothGattCharacteristicNoResponseUUID)) {
+                } else if (uuid.equals(bluetoothGattCharacteristicNoResponseUUID)) {
                     FDFireflyDeviceLogger.debug(log, "FD010904", "found firefly service characteristic");
 
                     bluetoothGattCharacteristicNoResponse = characteristic;
@@ -212,8 +190,7 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             FDFireflyDeviceLogger.debug(log, "FD010905", "connected to firefly");
             bluetoothGatt.discoverServices();
-        } else
-        if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+        } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             FDFireflyDeviceLogger.debug(log, "FD010906", "disconnected from firefly");
             shutdown();
         }
@@ -270,24 +247,23 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
     public void fireflyIceChannelSend(final byte[] data) {
         detourSources.add(new FDDetourSource(20, FDBinary.toList(data)));
         checkWrite();
-	}
+    }
 
-	public void characteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, final byte[] data) {
+    public void characteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, final byte[] data) {
         FDFireflyDeviceLogger.debug(log, "FD010910", "FDFireflyIceChannelBLE:characteristicValueChange %s", FDBinary.toHexString(data));
-		detour.detourEvent(FDBinary.toList(data));
-		if (detour.state == FDDetour.State.Success) {
-			if (delegate != null) {
-				delegate.fireflyIceChannelPacket(this, FDBinary.toByteArray(detour.buffer));
-			}
-			detour.clear();
-		} else
-		if (detour.state == FDDetour.State.Error) {
-			if (delegate != null) {
-				delegate.fireflyIceChannelDetourError(this, detour, detour.error);
-			}
-			detour.clear();
-		}
-	}
+        detour.detourEvent(FDBinary.toList(data));
+        if (detour.state == FDDetour.State.Success) {
+            if (delegate != null) {
+                delegate.fireflyIceChannelPacket(this, FDBinary.toByteArray(detour.buffer));
+            }
+            detour.clear();
+        } else if (detour.state == FDDetour.State.Error) {
+            if (delegate != null) {
+                delegate.fireflyIceChannelDetourError(this, detour, detour.error);
+            }
+            detour.clear();
+        }
+    }
 
     public void setRssi(int rssi) {
         this.rssi = rssi;

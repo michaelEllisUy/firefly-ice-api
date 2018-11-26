@@ -12,13 +12,13 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 
 import android.os.ParcelUuid;
+import android.util.Log;
 
 public class FDFireflyIceManager {
     public interface Delegate {
         void discovered(FDFireflyIceManager manager, ScanResult result);
     }
 
-    Activity activity;
     BluetoothAdapter bluetoothAdapter;
     UUID serviceUUID;
     Delegate delegate;
@@ -26,8 +26,7 @@ public class FDFireflyIceManager {
 
     ScanCallback scanCallback;
 
-    public FDFireflyIceManager(final Activity activity, BluetoothAdapter bluetoothAdapter, UUID serviceUUID, Delegate delegate) {
-        this.activity = activity;
+    public FDFireflyIceManager(BluetoothAdapter bluetoothAdapter, UUID serviceUUID, Delegate delegate) {
         this.bluetoothAdapter = bluetoothAdapter;
         this.serviceUUID = serviceUUID;
         this.delegate = delegate;
@@ -35,13 +34,7 @@ public class FDFireflyIceManager {
         scanCallback = new ScanCallback() {
 
             public void onScanResult(final int callbackType, final ScanResult result) {
-                activity.runOnUiThread(
-                        new Runnable() {
-                            public void run() {
-                                scanResult(result);
-                            }
-                        }
-                );
+                scanResult(result);
             }
 
             public void onBatchScanResults(List<ScanResult> results) {
@@ -51,6 +44,7 @@ public class FDFireflyIceManager {
             }
 
             public void onScanFailed(int errorCode) {
+                Log.i("Failed", "Failed");
             }
 
         };

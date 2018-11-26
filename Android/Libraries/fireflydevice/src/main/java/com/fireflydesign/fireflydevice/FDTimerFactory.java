@@ -1,7 +1,5 @@
 package com.fireflydesign.fireflydevice;
 
-import android.app.Activity;
-
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +14,7 @@ public class FDTimerFactory {
             super(invocation, timeout, type);
 
             Runnable command = this;
-            long delay = (long)(timeout * 1000);
+            long delay = (long) (timeout * 1000);
             if (type == Type.OneShot) {
                 future = executor.schedule(command, delay, TimeUnit.MILLISECONDS);
             } else {
@@ -26,23 +24,15 @@ public class FDTimerFactory {
 
         public void run() {
             if (enabled) {
-                activity.runOnUiThread(
-                        new Runnable() {
-                            public void run() {
-                                invocation.timerFired();
-                            }
-                        }
-                );
+                invocation.timerFired();
             }
         }
 
     }
 
-    Activity activity;
     ScheduledThreadPoolExecutor executor;
 
-    public FDTimerFactory(Activity activity) {
-        this.activity = activity;
+    public FDTimerFactory() {
         executor = new ScheduledThreadPoolExecutor(1);
     }
 

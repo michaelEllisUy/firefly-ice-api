@@ -26,12 +26,12 @@ public class FDFireflyIce implements FDFireflyIceChannel.Delegate {
     public FDFireflyIceHardwareId hardwareId;
     public FDFireflyIceVersion bootVersion;
 
-    public FDFireflyIce(Activity activity) {
+    public FDFireflyIce() {
         channels = new HashMap<String, FDFireflyIceChannel>();
 		observable = new FDObservable();
 		observable.addObserverInterface(FDFireflyIceObserver.class);
         coder = new FDFireflyIceCoder(observable);
-        executor = new FDExecutor(activity);
+        executor = new FDExecutor();
         name = "anonymous";
     }
 
