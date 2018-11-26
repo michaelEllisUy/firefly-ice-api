@@ -13,6 +13,7 @@ import android.app.Activity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -42,9 +43,13 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
     BluetoothGatt bluetoothGatt;
     BluetoothGattCharacteristic bluetoothGattCharacteristic;
     BluetoothGattCharacteristic bluetoothGattCharacteristicNoResponse;
+    ExecutorService executorService;
 
-    public FDFireflyIceChannelBLE(final String bluetoothGattServiceUUIDString, final BluetoothDevice bluetoothDevice) {
+    public FDFireflyIceChannelBLE(final ExecutorService executorService,
+                                  final String bluetoothGattServiceUUIDString,
+                                  final BluetoothDevice bluetoothDevice) {
         this.detour = new FDDetour();
+        this.executorService = executorService;
 
         StringBuffer bluetoothGattCharacteristicUUIDString = new StringBuffer(bluetoothGattServiceUUIDString);
         bluetoothGattCharacteristicUUIDString.replace(4, 8, "0002");
@@ -59,27 +64,52 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
             @Override
             public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
                 final byte[] data = characteristic.getValue();
-                characteristicChanged(gatt, characteristic, data);
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        characteristicChanged(gatt, characteristic, data);
+                    }
+                });
             }
 
             @Override
             public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, final int status) {
-                writeComplete(gatt, status);
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        writeComplete(gatt, status);
+                    }
+                });
             }
 
             @Override
             public void onDescriptorWrite(final BluetoothGatt gatt, final BluetoothGattDescriptor descriptor, final int status) {
-                writeComplete(gatt, status);
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        writeComplete(gatt, status);
+                    }
+                });
             }
 
             @Override
             public void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
-                connectionStateChange(gatt, status, newState);
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectionStateChange(gatt, status, newState);
+                    }
+                });
             }
 
             @Override
             public void onServicesDiscovered(final BluetoothGatt gatt, final int status) {
-                servicesDiscovered(gatt, status);
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        servicesDiscovered(gatt, status);
+                    }
+                });
             }
         };
     }

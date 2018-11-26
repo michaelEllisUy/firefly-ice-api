@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 public class FDExecutor {
 
@@ -62,12 +63,12 @@ public class FDExecutor {
     double currentFeedTime;
     FDTimer timer;
 
-    public FDExecutor() {
+    public FDExecutor(ExecutorService executorService) {
         tasks = new ArrayList<Task>();
         appointmentTasks = new ArrayList<Task>();
 
         timeoutCheckInterval = 5;
-        timerFactory = new FDTimerFactory();
+        timerFactory = new FDTimerFactory(executorService);
 		run = false;
 		currentFeedTime = 0;
 	}

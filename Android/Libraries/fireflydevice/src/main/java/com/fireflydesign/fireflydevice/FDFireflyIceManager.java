@@ -2,6 +2,7 @@ package com.fireflydesign.fireflydevice;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -23,10 +24,11 @@ public class FDFireflyIceManager {
     UUID serviceUUID;
     Delegate delegate;
     Boolean discovery;
-
     ScanCallback scanCallback;
+    ExecutorService executorService;
 
-    public FDFireflyIceManager(BluetoothAdapter bluetoothAdapter, UUID serviceUUID, Delegate delegate) {
+    public FDFireflyIceManager(final ExecutorService executorService, BluetoothAdapter bluetoothAdapter, UUID serviceUUID, Delegate delegate) {
+        this.executorService = executorService;
         this.bluetoothAdapter = bluetoothAdapter;
         this.serviceUUID = serviceUUID;
         this.delegate = delegate;
@@ -34,7 +36,12 @@ public class FDFireflyIceManager {
         scanCallback = new ScanCallback() {
 
             public void onScanResult(final int callbackType, final ScanResult result) {
-                scanResult(result);
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        scanResult(result);
+                    }
+                });
             }
 
             public void onBatchScanResults(List<ScanResult> results) {
@@ -44,7 +51,7 @@ public class FDFireflyIceManager {
             }
 
             public void onScanFailed(int errorCode) {
-                Log.i("Failed", "Failed");
+                Log.i("FDFireflyIceManager", "Scan Failed");
             }
 
         };
@@ -84,5 +91,9 @@ public class FDFireflyIceManager {
 
     public UUID getServiceUUID() {
         return serviceUUID;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }

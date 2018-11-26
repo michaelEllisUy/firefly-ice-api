@@ -8,10 +8,9 @@
 
 package com.fireflydesign.fireflydevice;
 
-import android.app.Activity;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 public class FDFireflyIce implements FDFireflyIceChannel.Delegate {
 
@@ -25,13 +24,14 @@ public class FDFireflyIce implements FDFireflyIceChannel.Delegate {
     public FDFireflyIceVersion version;
     public FDFireflyIceHardwareId hardwareId;
     public FDFireflyIceVersion bootVersion;
+    public ExecutorService executorService;
 
-    public FDFireflyIce() {
+    public FDFireflyIce(ExecutorService executorService) {
         channels = new HashMap<String, FDFireflyIceChannel>();
 		observable = new FDObservable();
 		observable.addObserverInterface(FDFireflyIceObserver.class);
         coder = new FDFireflyIceCoder(observable);
-        executor = new FDExecutor();
+        executor = new FDExecutor(executorService);
         name = "anonymous";
     }
 

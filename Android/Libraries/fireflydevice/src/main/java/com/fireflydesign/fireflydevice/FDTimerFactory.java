@@ -1,5 +1,6 @@
 package com.fireflydesign.fireflydevice;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,16 +25,23 @@ public class FDTimerFactory {
 
         public void run() {
             if (enabled) {
-                invocation.timerFired();
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        invocation.timerFired();
+                    }
+                });
             }
         }
 
     }
 
     ScheduledThreadPoolExecutor executor;
+    ExecutorService executorService;
 
-    public FDTimerFactory() {
+    public FDTimerFactory(ExecutorService executorService) {
         executor = new ScheduledThreadPoolExecutor(1);
+        this.executorService = executorService;
     }
 
     public FDTimer makeTimer(FDTimer.Delegate invocation, double timeout, FDTimer.Type type) {
