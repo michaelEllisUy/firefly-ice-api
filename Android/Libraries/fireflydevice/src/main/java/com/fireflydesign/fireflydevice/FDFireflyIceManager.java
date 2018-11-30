@@ -27,7 +27,8 @@ public class FDFireflyIceManager {
     ScanCallback scanCallback;
     ExecutorService executorService;
 
-    public FDFireflyIceManager(final ExecutorService executorService, BluetoothAdapter bluetoothAdapter, UUID serviceUUID, Delegate delegate) {
+    public FDFireflyIceManager(final ExecutorService executorService, BluetoothAdapter bluetoothAdapter,
+                               UUID serviceUUID, Delegate delegate) {
         this.executorService = executorService;
         this.bluetoothAdapter = bluetoothAdapter;
         this.serviceUUID = serviceUUID;

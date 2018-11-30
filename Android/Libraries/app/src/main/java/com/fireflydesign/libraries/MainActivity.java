@@ -59,6 +59,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity implements FDFireflyIceManager.Delegate,
         FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate, FDHelloTask.Delegate {
@@ -68,7 +70,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
     Map<String, Map<String, Object>> discovered;
     List<String> listViewItems;
     FDFireflyIce fireflyIce;
-
+    final private ExecutorService executorService = Executors.newSingleThreadExecutor();
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
     @Override
@@ -171,19 +173,19 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
         discovered = new HashMap<>();
         listViewItems = new ArrayList<>();
-        ListView listView = (ListView)findViewById(R.id.listView);
+        ListView listView = (ListView) findViewById(R.id.listView);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_single_choice, listViewItems);
         listView.setAdapter(adapter);
 
 //        baseUUID = "310a0001-1b95-5091-b0bd-b7a681846399"; // Firefly Ice
         baseUUID = "577FB8B4-553E-4807-9779-8647481D49B3"; // Atlas
         UUID serviceUUID = UUID.fromString(baseUUID);
-        BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter != null) {
-            fireflyIceManager = new FDFireflyIceManager(this, bluetoothAdapter, serviceUUID, this);
+            fireflyIceManager = new FDFireflyIceManager(executorService, bluetoothAdapter, serviceUUID, this);
         } else {
-            TextView statusTextView = (TextView)findViewById(R.id.statusTextView);
+            TextView statusTextView = (TextView) findViewById(R.id.statusTextView);
             statusTextView.setText("Bluetooth is not available!");
         }
 
@@ -199,9 +201,10 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
             return;
         }
 
-        FDFireflyIce fireflyIce = new FDFireflyIce(this);
+        FDFireflyIce fireflyIce = new FDFireflyIce(executorService);
         fireflyIce.observable.addObserver(this);
-        FDFireflyIceChannelBLE channel = new FDFireflyIceChannelBLE(this, baseUUID, bluetoothDevice);
+        FDFireflyIceChannelBLE channel = new FDFireflyIceChannelBLE(executorService, baseUUID,
+                bluetoothDevice);
         fireflyIce.addChannel(channel, "BLE");
 
         map = new HashMap<>();
@@ -210,13 +213,13 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
         discovered.put(bluetoothDevice.getAddress(), map);
 
         // add to end of list
-        ListView listView = (ListView)findViewById(R.id.listView);
-        ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
+        ListView listView = (ListView) findViewById(R.id.listView);
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) listView.getAdapter();
         adapter.add(bluetoothDevice.getAddress());
     }
 
     public void onScanCheckBoxChange(View view) {
-        CheckBox checkBox = (CheckBox)view;
+        CheckBox checkBox = (CheckBox) view;
         fireflyIceManager.setDiscovery(checkBox.isChecked());
     }
 
@@ -226,12 +229,12 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
         }
 
         FDFireflyDeviceLogger.debug(null, "FD020001", "opening firefly device");
-        ListView listView = (ListView)findViewById(R.id.listView);
+        ListView listView = (ListView) findViewById(R.id.listView);
         int position = listView.getCheckedItemPosition();
         String address = listViewItems.get(position);
         Map map = discovered.get(address);
-        fireflyIce = (FDFireflyIce)map.get("fireflyIce");
-        FDFireflyIceChannelBLE channel = (FDFireflyIceChannelBLE)fireflyIce.channels.get("BLE");
+        fireflyIce = (FDFireflyIce) map.get("fireflyIce");
+        FDFireflyIceChannelBLE channel = (FDFireflyIceChannelBLE) fireflyIce.channels.get("BLE");
         channel.open();
     }
 
@@ -276,7 +279,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
     }
 
     public void firmwareUpdateTaskProgress(FDFirmwareUpdateTask task, float progress) {
-        ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setProgress((int) (progress * 100));
     }
 
@@ -313,7 +316,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
     // Called after each successful upload.
     public void pullTaskProgress(FDPullTask pullTask, float progress) {
-        ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setProgress((int) (progress * 100));
     }
 
