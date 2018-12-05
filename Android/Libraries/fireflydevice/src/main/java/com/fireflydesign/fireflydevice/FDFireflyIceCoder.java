@@ -120,6 +120,7 @@ public class FDFireflyIceCoder {
 	public static final int FD_CONTROL_PROPERTY_INDICATE         = 0x00020000;
 	public static final int FD_CONTROL_PROPERTY_RECOGNITION      = 0x00040000;
 	public static final int FD_CONTROL_PROPERTY_HARDWARE_VERSION = 0x00080000;
+	public static final int FD_CONTROL_PROPERTY_SUBSCRIBE = 0x00100000;
 
     public static final int FD_CONTROL_PROVISION_OPTION_DEBUG_LOCK = 0x00000001;
     public static final int FD_CONTROL_PROVISION_OPTION_RESET      = 0x00000002;
@@ -1011,4 +1012,16 @@ public class FDFireflyIceCoder {
 		}
 	}
 
+    public void sendSetPropertySubscribe(FDFireflyIceChannelBLE channel, int properties) {
+        FDBinary binary = new FDBinary();
+        binary.putUInt8(FD_CONTROL_SET_PROPERTIES);
+        binary.putUInt32(FD_CONTROL_PROPERTY_SUBSCRIBE);
+        binary.putUInt32(properties);
+        List<Byte> bytes = binary.dataValue();
+        byte[] byteArray = new byte[bytes.size()];
+        for (int i = 0; i < bytes.size(); i++) {
+            byteArray[i] = bytes.get(i);
+        }
+        channel.fireflyIceChannelSend(byteArray);
+    }
 }

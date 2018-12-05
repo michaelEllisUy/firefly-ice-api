@@ -24,12 +24,6 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 
 public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
-
-    public class Rssi {
-        float value;
-        Date date;
-    }
-
     FDFireflyDeviceLog log;
     FDDetour detour;
     FDFireflyIceChannel.Delegate delegate;
@@ -302,5 +296,4 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
 			detour.clear();
 		}
 	}
-
 }

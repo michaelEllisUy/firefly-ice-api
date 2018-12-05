@@ -16,7 +16,7 @@ import java.util.List;
 public class FDBinary {
 
     List<Byte> buffer;
-    int getIndex;
+    public int getIndex;
 
     public static byte[] toByteArray(List<Byte> list) {
         byte[] array = new byte[list.size()];

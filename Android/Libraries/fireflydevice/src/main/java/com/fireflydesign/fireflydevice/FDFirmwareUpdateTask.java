@@ -28,6 +28,7 @@ public class FDFirmwareUpdateTask extends FDFireflyIceTaskSteps {
     public boolean downgrade;
     public boolean commit;
     public boolean reset;
+    public boolean useArea;
 	public byte area;
     public short major;
     public short minor;
