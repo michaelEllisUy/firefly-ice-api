@@ -173,7 +173,8 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
         listView.setAdapter(adapter);
 
 //        baseUUID = "310a0001-1b95-5091-b0bd-b7a681846399"; // Firefly Ice
-        baseUUID = "577FB8B4-553E-4807-9779-8647481D49B3"; // Atlas
+//        baseUUID = "577FB8B4-553E-4807-9779-8647481D49B3"; // Atlas
+        baseUUID = "39316b41-d4a3-be84-594d-4d0805f9d380"; // Atlas 103
         UUID serviceUUID = UUID.fromString(baseUUID);
         BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
