@@ -50,6 +50,7 @@ import com.fireflydesign.fireflydevice.FDFireflyIceVersion;
 import com.fireflydesign.fireflydevice.FDFirmwareUpdateTask;
 import com.fireflydesign.fireflydevice.FDHelloTask;
 import com.fireflydesign.fireflydevice.FDPullTask;
+import com.fireflydesign.fireflydevice.FDTime;
 import com.fireflydesign.fireflydevice.FDVMADecoder;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MainActivity extends Activity implements FDFireflyIceManager.Delegate, FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate {
+public class MainActivity extends Activity implements FDFireflyIceManager.Delegate, FDFireflyIceObserver, FDFirmwareUpdateTask.Delegate, FDPullTask.Delegate, FDHelloTask.Delegate{
 
     String baseUUID;
     FDFireflyIceManager fireflyIceManager;
@@ -351,7 +352,7 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
     public void fireflyIceStatus(FDFireflyIce fireflyIce, FDFireflyIceChannel channel, FDFireflyIceChannel.Status status) {
         if (status == FDFireflyIceChannel.Status.Open) {
             FDFireflyDeviceLogger.info(null, "FD020012", "executing hello task");
-            fireflyIce.executor.execute(new FDHelloTask(fireflyIce, channel, null));
+            fireflyIce.executor.execute(new FDHelloTask(fireflyIce, channel, this));
         }
     }
 
@@ -520,4 +521,18 @@ public class MainActivity extends Activity implements FDFireflyIceManager.Delega
 
     }
 
+    @Override
+    public double helloTaskDate() {
+        return FDTime.time();
+    }
+
+    @Override
+    public void helloTaskSuccess(FDHelloTask helloTask) {
+        Toast.makeText(this, "HELLO TASK SUCCESS", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void helloTaskError(FDHelloTask helloTask, FDError error) {
+        Toast.makeText(this, "HELLO TASK ERROR", Toast.LENGTH_SHORT).show();
+    }
 }
