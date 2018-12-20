@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
+import android.util.Log;
 
 public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
     FDFireflyDeviceLog log;
@@ -144,6 +145,8 @@ public class FDFireflyIceChannelBLE implements FDFireflyIceChannel {
 			delegate.fireflyIceChannelStatus(this, status);
 		}
 
+        Log.d("TAG", String.format("Bluetooth device is: %s", bluetoothDevice.toString()));
+        Log.d("TAG", String.format("Bluetooth activity is: %s", activity.toString()));
         bluetoothGatt = bluetoothDevice.connectGatt(activity, false, bluetoothGattCallback);
 	}
 

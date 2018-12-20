@@ -18,7 +18,10 @@
 
 package com.fireflydesign.fireflydevice;
 
+import android.util.Log;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +29,7 @@ import java.util.Map;
 public class FDPullTask extends FDExecutor.Task implements FDFireflyIceObserver, FDPullTaskUpload.Delegate {
 
     public static int FD_STORAGE_TYPE(char a, char b, char c, char d) {
-        return ((a & 0xff) | ((b & 0xff) << 8) | ((c & 0xff) << 16) | ((d & 0xff) << 24));
+        return (a | (b << 8) | (c << 16) | (d << 24));
     }
 
     public class Item {
@@ -108,7 +111,7 @@ public class FDPullTask extends FDExecutor.Task implements FDFireflyIceObserver,
     boolean complete;
     FDTimer timer;
 
-// Wait time between pull attempts.  Starts at minWait.  On error backs off linearly until maxWait.
+    // Wait time between pull attempts.  Starts at minWait.  On error backs off linearly until maxWait.
 // On success reverts to minWait.
     double wait;
     double minWait;
@@ -126,7 +129,11 @@ public class FDPullTask extends FDExecutor.Task implements FDFireflyIceObserver,
 
     void startTimer() {
         cancelTimer();
-        timer = fireflyIce.executor.timerFactory.makeTimer(new FDTimer.Delegate() { public void timerFired() { timeout(); } }, 2.0 , FDTimer.Type.OneShot);
+        timer = fireflyIce.executor.timerFactory.makeTimer(new FDTimer.Delegate() {
+            public void timerFired() {
+                timeout();
+            }
+        }, 2.0, FDTimer.Type.OneShot);
     }
 
     void timeout() {
@@ -430,7 +437,7 @@ public class FDPullTask extends FDExecutor.Task implements FDFireflyIceObserver,
     void notifyProgress() {
         float progress = 1.0f;
         if (initialBacklog > 0) {
-            progress = (initialBacklog - currentBacklog) / (float)initialBacklog;
+            progress = (initialBacklog - currentBacklog) / (float) initialBacklog;
         }
         FDFireflyDeviceLogger.info(log, "FD010712", "sync task progress %f", progress);
         if (delegate != null) {
@@ -565,9 +572,11 @@ public class FDPullTask extends FDExecutor.Task implements FDFireflyIceObserver,
 
         Integer typeKey = type;
         Decoder decoder = decoderByType.get(typeKey);
+
         if (decoder != null) {
             try {
-                Object value = decoder.decode(type, FDBinary.toByteArray(binary.getRemainingData()), responseData);
+                List<Byte> requestData = binary.getRemainingData();
+                Object value = decoder.decode(type, FDBinary.toByteArray(requestData), responseData);
                 if (value != null) {
                     addSyncAheadItem(responseData, value);
                 }
